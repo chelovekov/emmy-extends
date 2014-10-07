@@ -5,7 +5,7 @@
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'em-http-request' # if savon em-http-request
+gem 'em-http-request' # if em-http-request required
 gem 'httpi'           # if httpi required
 gem 'mysql2'          # if mysql2 required
 gem 'savon', github: 'chelovekov/savon' # if savon required
