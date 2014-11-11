@@ -9,7 +9,7 @@ describe EmmyExtends::EmHttpRequest do
 
   it "should send request to httpbin.org" do
     request = EmmyHttp::Request.new(
-      method: 'get',
+      type: 'get',
       url: 'http://httpbin.org'
     )
     operation = EmmyHttp::Operation.new(request, EmmyExtends::EmHttpRequest::Adapter.new)
@@ -23,7 +23,7 @@ describe EmmyExtends::EmHttpRequest do
 
   it "should send https request to httpbin.org" do
     request = EmmyHttp::Request.new(
-      method: 'get',
+      type: 'get',
       url: 'https://httpbin.org'
     )
     operation = EmmyHttp::Operation.new(request, EmmyExtends::EmHttpRequest::Adapter.new)

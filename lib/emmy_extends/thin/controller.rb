@@ -8,8 +8,7 @@ module EmmyExtends
     def initialize(url, app, options={})
       @url = URI(url.to_s)
       @app = app
-      options[:backend] ||= EmmyExtends::Thin::Backend
-      super(options)
+      super(options_with_defaults(options))
     end
 
     def start
@@ -33,7 +32,11 @@ module EmmyExtends
       # ssl support
       if @options[:ssl]
         server.ssl = true
-        server.ssl_options = { :private_key_file => @options[:ssl_key_file], :cert_chain_file => @options[:ssl_cert_file], :verify_peer => !@options[:ssl_disable_verify] }
+        server.ssl_options = {
+          private_key_file: @options[:ssl_key_file],
+          cert_chain_file: @options[:ssl_cert_file],
+          verify_peer: !@options[:ssl_disable_verify]
+        }
       end
 
       # Detach the process, after this line the current process returns
@@ -56,8 +59,11 @@ module EmmyExtends
 
       def options_with_defaults(opt)
         {
+          backend:              EmmyExtends::Thin::Backend,
+          threaded:             false,
+          no_epoll:             false,
           chdir:                Dir.pwd,
-          environment:          env,
+          environment:          'development',
           address:              '0.0.0.0',
           port:                 3434,
           timeout:              30, #sec

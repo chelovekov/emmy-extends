@@ -23,7 +23,7 @@ module EmmyExtends
       }
     end
 
-    def request(method)
+    def request(type)
       if @request.on_body
         raise NotSupportedError, "EM-HTTP-Request does not support response streaming"
       end
@@ -37,7 +37,7 @@ module EmmyExtends
 
       @http_request = EmmyHttp::Request.new(
         url: build_request_url(@request.url),
-        method: method,
+        type: type,
         timeouts: { connect: @request.open_timeout, inactivity: @request.read_timeout },
         headers: @request.headers.to_hash,
         body: @request.body,

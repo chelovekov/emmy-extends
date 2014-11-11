@@ -20,7 +20,7 @@ require 'emmy_extends/em_http_request'
 EmmyMachine.run_block do
   using Fibre::Synchrony
   request = EmmyHttp::Request.new(
-    method: 'get',
+    type: 'get',
     url: 'http://github.com'
   )
   operation1 = EmmyHttp::Operation.new(request, EmmyExtends::EmHttpRequest::Adapter.new)

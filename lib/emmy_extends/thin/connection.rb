@@ -6,6 +6,11 @@ module EmmyExtends
       @delegate.unbind
     end
 
+    def receive_data(*a)
+      @delegate.receive_data(*a)
+    end
+
+    # fix me did not works
     def method_missing(name, *a, &b)
       @delegate.send(name, *a, &b)
     end

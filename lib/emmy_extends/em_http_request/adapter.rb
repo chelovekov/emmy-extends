@@ -81,8 +81,8 @@ module EmmyExtends
 
     def setup_http_client
       @http_client = begin
-        method = delegate.request.method.to_s.upcase
-        http_client_options = HttpClientOptions.new(delegate.request.url, request_options, method)
+        type = delegate.request.type.to_s.upcase # http method
+        http_client_options = HttpClientOptions.new(delegate.request.url, request_options, type)
         EventMachine::HttpClient.new(@http_request, http_client_options).tap do |client|
           client.stream do |chunk|
             @body << chunk

@@ -1,3 +1,5 @@
+require "emmy_extends/core_ext"
+
 module EmmyExtends
   module Thin::ClassMethods
     using CoreExt

@@ -29,8 +29,7 @@ module EmmyExtends
       conn.delegate = thin_connection
       super(thin_connection)
       @running = true # FIXME: maybe not here
-
-      conn.following.post_init
+      conn.delegate.post_init
     end
 
     def to_a
