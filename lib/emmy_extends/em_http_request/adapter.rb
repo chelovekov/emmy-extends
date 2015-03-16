@@ -45,7 +45,8 @@ module EmmyExtends
         inactivity_timeout: delegate.request.timeouts.inactivity,
         :ssl => (delegate.request.ssl?) ? {
           :cert_chain_file => delegate.request.ssl.cert_chain_file,
-          :verify_peer => (delegate.request.ssl.verify_peer == :peer)
+          :verify_peer => (delegate.request.ssl.verify_peer == :peer),
+          :ssl_version => :TLSv1
         } : {}
       }
     end
