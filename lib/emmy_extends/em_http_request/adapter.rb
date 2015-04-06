@@ -1,11 +1,27 @@
+using EventObject
+
 module EmmyExtends
-  class EmHttpRequest::Adapter < EmmyHttp::Adapter
-    using EventObject
+  class EmHttpRequest::Adapter
+    include EmmyHttp::Adapter
 
     attr_reader :http_request
     attr_reader :http_client
     attr_reader :body
     attr_reader :connection
+    attr_reader :operation
+    attr_reader :response
+
+    # required for adapter
+
+    def delegate=(operation)
+      @operation = operation
+      setup_http_request
+      setup_http_client
+    end
+
+    def to_a
+      ["tcp://#{operation.request.url.host}:#{operation.request.url.port}", EmmyMachine::Connection, method(:initialize_connection), self]
+    end
 
     def initialize_connection(conn)
       @connection = conn
@@ -32,21 +48,22 @@ module EmmyExtends
       conn.comm_inactivity_timeout = http_request.connopts.inactivity_timeout
 
       @body = ''
-      delegate.init!(delegate, conn)
+      #operation.connection = conn  # update connection handler
+      operation.init!(operation, conn)
 
     rescue EventMachine::ConnectionError => e
       EventMachine.next_tick { @http_client.close(e.message) }
-      delegate.error!("connection error", self)
+      operation.error!("connection error", self)
     end
 
     def connection_options
       {
-        connect_timeout: delegate.request.timeouts.connect,
-        inactivity_timeout: delegate.request.timeouts.inactivity,
-        :ssl => (delegate.request.ssl?) ? {
-          :cert_chain_file => delegate.request.ssl.cert_chain_file,
-          :verify_peer => (delegate.request.ssl.verify_peer == :peer),
-          :ssl_version => :TLSv1
+        connect_timeout: operation.request.timeouts.connect,
+        inactivity_timeout: operation.request.timeouts.inactivity,
+        ssl: (operation.request.ssl?) ? {
+          cert_chain_file: operation.request.ssl.cert_chain_file,
+          verify_peer:     (operation.request.ssl.verify_peer == :peer),
+          ssl_version:     operation.request.ssl.ssl_version
         } : {}
       }
     end
@@ -55,15 +72,15 @@ module EmmyExtends
       {
         redirects: 5,
         keepalive: false,
-        path: delegate.request.url.path,
-        query: delegate.request.url.query,
-        body: encode_body(delegate.request.body),
-        head: delegate.request.headers
+        path: operation.request.url.path,
+        query: operation.request.url.query,
+        body: encode_body(operation.request.body),
+        head: operation.request.headers
       }
     end
 
     def encode_body(body)
-      return body if delegate.request.headers["Content-Encoding"] != "gzip"
+      return body if operation.request.headers["Content-Encoding"] != "gzip"
       wio = StringIO.new("w")
       begin
         w_gz = Zlib::GzipWriter.new(wio)
@@ -74,50 +91,40 @@ module EmmyExtends
       end
     end
 
-    def setup
-      raise 'delegator must be set before' unless delegate
-      setup_http_request
-      setup_http_client
-    end
-
     def setup_http_client
       @http_client = begin
-        type = delegate.request.type.to_s.upcase # http method
-        http_client_options = HttpClientOptions.new(delegate.request.url, request_options, type)
+        type = operation.request.type.to_s.upcase # http method
+        http_client_options = HttpClientOptions.new(operation.request.url, request_options, type)
         EventMachine::HttpClient.new(@http_request, http_client_options).tap do |client|
           client.stream do |chunk|
             @body << chunk
           end
 
           client.headers do |response_header|
-            delegate.head!(delegate, connection)
+            @response = EmmyHttp::Response.new
+            response.headers = http_client.response_header
+            response.status  = status
+            operation.head!(response, operation, connection)
           end
 
           client.callback do
             if @http_client.response_header && @http_client.response_header.status.zero?
-              delegate.error!("connection timed out", delegate, connection)
+              operation.error!("connection timed out", operation, connection)
             else
-              delegate.success!(delegate.response, delegate, connection)
+              response.body   = body
+              operation.success!(response, operation, connection)
             end
           end
 
           client.errback do |c|
-            delegate.error!(client.error, delegate, connection)
+            operation.error!(client.error, operation, connection)
           end
         end
       end
     end
 
     def setup_http_request
-      @http_request = EventMachine::HttpRequest.new(delegate.request.url, connection_options)
-    end
-
-    def to_a
-      ["tcp://#{delegate.request.url.host}:#{delegate.request.url.port}", EmmyMachine::Connection, method(:initialize_connection), self]
-    end
-
-    def headers
-      @http_client.response_header
+      @http_request = EventMachine::HttpRequest.new(operation.request.url, connection_options)
     end
 
     def status

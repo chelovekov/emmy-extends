@@ -6,8 +6,8 @@ require 'emmy_extends/version'
 Gem::Specification.new do |spec|
   spec.name          = "emmy-extends"
   spec.version       = EmmyExtends::VERSION
-  spec.authors       = ["che"]
-  spec.email         = ["chelovekov@gmail.com"]
+  spec.authors       = ["inre"]
+  spec.email         = ["inre.storm@gmail.com"]
   spec.summary       = %q{Emmy support em-http-request, thin, savon, mysql2 etc.}
   #spec.description   = %q{TODO: Write a longer description. Optional.}
   spec.homepage      = ""
@@ -19,8 +19,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   #spec.add_dependency "eventmachine", "~> 1.0.3"
-  #spec.add_dependency "emmy-machine", "~> 0.1.6"
-  spec.add_dependency "emmy-http", "~> 0.1.2"
+  spec.add_dependency "emmy-machine", "~> 0.1.6"
+  spec.add_dependency "emmy-http", "~> 0.1.4"
 
   spec.add_development_dependency "rspec", "~> 3"
   spec.add_development_dependency "bundler", "~> 1.7"

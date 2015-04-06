@@ -17,7 +17,7 @@ describe EmmyExtends::EmHttpRequest do
 
     expect(response.status).to be 200
     expect(response.headers).to include("Content-Type")
-    expect(response.headers["Server"]).to eq("gunicorn/18.0")
+    expect(response.headers["Server"]).to eq("nginx")
     expect(response.body.empty?).to be false
   end
 
@@ -32,7 +32,7 @@ describe EmmyExtends::EmHttpRequest do
     expect(operation.to_a.first).to eq("tcp://httpbin.org:443")
     expect(response.status).to be 200
     expect(response.headers).to include("Content-Type")
-    expect(response.headers["Server"]).to eq("gunicorn/18.0")
+    expect(response.headers["Server"]).to eq("nginx")
     expect(response.body.empty?).to be false
   end
 end
