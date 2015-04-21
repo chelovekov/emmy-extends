@@ -8,7 +8,7 @@ Add this line to your application's Gemfile:
 gem 'em-http-request' # if em-http-request required
 gem 'httpi'           # if httpi required
 gem 'mysql2'          # if mysql2 required
-gem 'savon', github: 'chelovekov/savon' # if savon required
+gem 'savon', github: 'inre/savon' # if savon required
 gem 'emmy-extends'
 ```
 
@@ -109,11 +109,3 @@ EmmyMachine.run_block do
   }
 end
 ```
-
-## Contributing
-
-1. Fork it ( https://github.com/chelovekov/emmy-extends/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
