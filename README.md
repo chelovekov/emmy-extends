@@ -8,7 +8,7 @@ Add this line to your application's Gemfile:
 gem 'em-http-request' # if em-http-request required
 gem 'httpi'           # if httpi required
 gem 'mysql2'          # if mysql2 required
-gem 'savon', github: 'chelovekov/savon' # if savon required
+gem 'savon', github: 'inre/savon' # if savon required
 gem 'emmy-extends'
 ```
 
