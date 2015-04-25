@@ -6,4 +6,4 @@ gemspec
 gem 'em-http-request'
 gem 'mysql2'
 gem 'httpi'
-gem 'savon', github: 'chelovekov/savon', branch: 'version2'
+gem 'savon', github: 'inre/savon', branch: 'version2'

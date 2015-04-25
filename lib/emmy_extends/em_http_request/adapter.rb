@@ -10,17 +10,19 @@ module EmmyExtends
     attr_reader :connection
     attr_reader :operation
     attr_reader :response
+    attr_reader :url
 
     # required for adapter
 
     def delegate=(operation)
       @operation = operation
+      @url = operation.request.real_url
       setup_http_request
       setup_http_client
     end
 
     def to_a
-      ["tcp://#{operation.request.url.host}:#{operation.request.url.port}", EmmyMachine::Connection, method(:initialize_connection), self]
+      ["tcp://#{url.host}:#{url.port || url.default_port}", EmmyMachine::Connection, method(:initialize_connection), self]
     end
 
     def initialize_connection(conn)
@@ -60,7 +62,7 @@ module EmmyExtends
       {
         connect_timeout: operation.request.timeouts.connect,
         inactivity_timeout: operation.request.timeouts.inactivity,
-        ssl: (operation.request.ssl?) ? {
+        ssl: (operation.request.ssl) ? {
           cert_chain_file: operation.request.ssl.cert_chain_file,
           verify_peer:     (operation.request.ssl.verify_peer == :peer),
           ssl_version:     operation.request.ssl.ssl_version
@@ -72,8 +74,8 @@ module EmmyExtends
       {
         redirects: 5,
         keepalive: false,
-        path: operation.request.url.path,
-        query: operation.request.url.query,
+        path: url.path,
+        query: url.query,
         body: encode_body(operation.request.body),
         head: operation.request.headers
       }
@@ -94,7 +96,7 @@ module EmmyExtends
     def setup_http_client
       @http_client = begin
         type = operation.request.type.to_s.upcase # http method
-        http_client_options = HttpClientOptions.new(operation.request.url, request_options, type)
+        http_client_options = HttpClientOptions.new(url, request_options, type)
         EventMachine::HttpClient.new(@http_request, http_client_options).tap do |client|
           client.stream do |chunk|
             @body << chunk
@@ -124,7 +126,7 @@ module EmmyExtends
     end
 
     def setup_http_request
-      @http_request = EventMachine::HttpRequest.new(operation.request.url, connection_options)
+      @http_request = EventMachine::HttpRequest.new(url, connection_options)
     end
 
     def status
