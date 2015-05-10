@@ -4,7 +4,5 @@ module EmmyExtends
     autoload :Backend,      "emmy_extends/thin/backend"
     autoload :Controller,   "emmy_extends/thin/controller"
     autoload :ClassMethods, "emmy_extends/thin/class_methods"
-
-    extend ClassMethods
   end
 end

@@ -3,21 +3,36 @@ require 'uri'
 module EmmyExtends
   class Thin::Controller < ::Thin::Controllers::Controller
 
-    attr_accessor :app, :url
+    attr_accessor :app
+    attr_accessor :config
+    attr_accessor :server
+    attr_accessor :backend
 
-    def initialize(url, app, options={})
-      @url = URI(url.to_s)
+    def initialize(config, app, opts={})
       @app = app
-      super(options_with_defaults(options))
+      @config = config.is_a?(Hash) ? EmmyHttp::Configuration.new(config) : config
+      options = {
+        environment: config.environment,
+        address:   config.url.host,
+        port:      config.url.port,
+        pid:       config.pid,
+        log:       config.log,
+        daemonize: config.daemonize
+      }
+      super(option_defaults.merge(options.merge(opts)))
+      setup
     end
 
     def start
+    end
+
+    def setup
       if @options[:socket]
-        server = ::Thin::Server.new(@options[:socket], @options)
+        @server = ::Thin::Server.new(@options[:socket], @options)
       else
-        server = ::Thin::Server.new(url.host, url.port, @options)
+        @server = ::Thin::Server.new(config.url.host, config.url.port, @options)
       end
-      server.backend.url = url
+      server.backend.url = config.url
 
       # Set options
       server.pid_file                       = @options[:pid]
@@ -52,29 +67,33 @@ module EmmyExtends
       #server.on_restart { Thin::Command.run(:start, @options) }
 
       # just return thin-backend
-      server.backend
+      @backend = server.backend
+    end
+
+    def to_a
+      @backend.to_a
     end
 
     private
 
-      def options_with_defaults(opt)
-        {
-          backend:              EmmyExtends::Thin::Backend,
-          threaded:             false,
-          no_epoll:             false,
-          chdir:                Dir.pwd,
-          environment:          'development',
-          address:              '0.0.0.0',
-          port:                 3434,
-          timeout:              30, #sec
-          pid:                  "tmp/pids/server.pid",
-          log:                  File.join(Dir.pwd, "log/server.log"),
-          max_conns:            1024,
-          max_persistent_conns: 100,
-          require:              [],
-          wait:                 30, #sec
-          daemonize:            false
-        }.update(opt)
-      end
+    def option_defaults
+      {
+        backend:              EmmyExtends::Thin::Backend,
+        threaded:             false,
+        no_epoll:             false,
+        chdir:                Dir.pwd,
+        environment:          'development',
+        address:              '0.0.0.0',
+        port:                 3434,
+        timeout:              0, #sec
+        pid:                  "tmp/pids/server.pid",
+        log:                  File.join(Dir.pwd, "log/server.log"),
+        max_conns:            1024,
+        max_persistent_conns: 100,
+        require:              [],
+        wait:                 0, #sec
+        daemonize:            false
+      }
+    end
   end
 end

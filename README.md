@@ -90,7 +90,10 @@ EmmyMachine.run do
     run Application
   end
 
-  EmmyMachine.bind(*EmmyExtends::Thin.server("tcp://localhost:65535", app, options))
+  thin = EmmyExtends::Thin::Controller.new({
+    url: "tcp://localhost:65535"
+  }, app)
+  EmmyMachine.bind(*thin)
 end
 ```
 
