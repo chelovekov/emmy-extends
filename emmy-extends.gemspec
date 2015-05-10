@@ -14,13 +14,12 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.executables   = ["emmy-thin"]
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
   spec.add_dependency "emmy-machine", "~> 0.1"
   spec.add_dependency "emmy-http", "~> 0.1"
-
 
   spec.add_development_dependency "eventmachine", "~> 1.0.3"
   spec.add_development_dependency "rspec", "~> 3"
