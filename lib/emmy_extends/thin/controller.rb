@@ -1,5 +1,3 @@
-require 'uri'
-
 module EmmyExtends
   class Thin::Controller < ::Thin::Controllers::Controller
 

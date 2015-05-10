@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
+require 'thin'
 require 'emmy'
-require 'emmy-extends/thin'
+require 'emmy_extends/thin'
 
 runner = Emmy::Runner.instance
 

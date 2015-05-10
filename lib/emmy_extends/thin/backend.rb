@@ -1,5 +1,3 @@
-require 'thin'
-
 module EmmyExtends
   class Thin::Backend < ::Thin::Backends::Base
     attr_accessor :url

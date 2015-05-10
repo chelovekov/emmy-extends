@@ -1,6 +1,3 @@
-require "thin"
-require "emmy_extends/thin"
-
 config = Emmy::Runner.instance.config
 config_ru = File.join(Dir.getwd, "config.ru")
 
@@ -10,7 +7,7 @@ unless File.readable_real?(config_ru)
 end
 
 rackup_code = File.read(config_ru)
-app = eval("Rack::Builder.new {( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config_ru)
+app = eval("Rack::Builder.new { use Fibre::Rack::FiberPool; ( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config_ru)
 
 Emmy.run do
   puts "Thin web server"
