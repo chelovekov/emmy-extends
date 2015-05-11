@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'thin'
 require 'emmy'
 require 'emmy_extends/thin'
 

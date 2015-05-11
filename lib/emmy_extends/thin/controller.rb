@@ -14,8 +14,7 @@ module EmmyExtends
         address:   config.url.host,
         port:      config.url.port,
         pid:       config.pid,
-        log:       config.log,
-        daemonize: config.daemonize
+        log:       config.log || File.join(Dir.pwd, "log/#{config.backend}.log")
       }
       super(option_defaults.merge(options.merge(opts)))
       setup
@@ -80,17 +79,17 @@ module EmmyExtends
         threaded:             false,
         no_epoll:             false,
         chdir:                Dir.pwd,
-        environment:          'development',
-        address:              '0.0.0.0',
-        port:                 3434,
+        #environment:          'development',
+        #address:              '0.0.0.0',
+        #port:                 3434,
         timeout:              0, #sec
-        pid:                  "tmp/pids/server.pid",
-        log:                  File.join(Dir.pwd, "log/server.log"),
+        #pid:                  "tmp/pids/thin.pid",
+        #log:                  File.join(Dir.pwd, "log/server.log"),
         max_conns:            1024,
         max_persistent_conns: 100,
         require:              [],
-        wait:                 0, #sec
-        daemonize:            false
+        wait:                 30, #sec
+        #daemonize:            false
       }
     end
   end

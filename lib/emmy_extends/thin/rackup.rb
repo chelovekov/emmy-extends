@@ -7,10 +7,14 @@ unless File.readable_real?(config_ru)
 end
 
 rackup_code = File.read(config_ru)
+# can run bundler in rackup.ru
 app = eval("Rack::Builder.new { use Fibre::Rack::FiberPool; ( #{rackup_code}\n )}.to_app", TOPLEVEL_BINDING, config_ru)
+
+require 'thin'
 
 Emmy.run do
   puts "Thin web server"
+  puts "Application starting in #{config.environment}"
   puts "Listening on #{config.url}"
   Emmy.bind *EmmyExtends::Thin::Controller.new(config, app)
 end
