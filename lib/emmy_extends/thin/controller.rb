@@ -20,11 +20,12 @@ module EmmyExtends
       }
 
       if config.ssl
-        options.merge(
-          ssl_key_file:       config.ssl_key_file,
-          ssl_cert_file:      config.ssl_cert_file,
-          ssl_disable_verify: !config.verify_peer,
-          ssl_version:        config.ssl_version
+        options.merge!(
+          ssl: true,
+          ssl_key_file:       config.ssl.private_key_file,
+          ssl_cert_file:      config.ssl.cert_chain_file,
+          ssl_disable_verify: !config.ssl.verify_peer,
+          ssl_version:        config.ssl.ssl_version
         )
       end
 
@@ -60,7 +61,7 @@ module EmmyExtends
           private_key_file: @options[:ssl_key_file],
           cert_chain_file: @options[:ssl_cert_file],
           verify_peer: !@options[:ssl_disable_verify],
-          ssl_version: @options[:ssl_disable_verify]
+          ssl_version: @options[:ssl_version]
         }
       end
 
