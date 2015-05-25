@@ -12,9 +12,7 @@ app = eval("Rack::Builder.new { use Fibre::Rack::FiberPool; ( #{rackup_code}\n )
 
 require 'thin'
 
-Emmy.run do
-  puts "Thin web server"
-  puts "Application starting in #{config.environment}"
-  puts "Listening on #{config.url}"
-  Emmy.bind *EmmyExtends::Thin::Controller.new(config, app)
-end
+puts "Thin web server"
+puts "Application starting in #{config.environment}"
+puts "Listening on #{config.url}"
+Emmy.bind *EmmyExtends::Thin::Controller.new(config, app)

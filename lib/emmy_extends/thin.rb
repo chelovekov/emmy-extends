@@ -2,7 +2,7 @@ require 'thin'
 
 module EmmyExtends
   module Thin
-    EMMY_BACKEND = File.expand_path('../thin/rackup.rb', __FILE__)
+    EMMY_BACKEND = File.expand_path('../thin/rackup.em', __FILE__)
   end
 end
 

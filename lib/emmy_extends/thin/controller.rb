@@ -10,12 +10,24 @@ module EmmyExtends
       @app = app
       @config = config.is_a?(Hash) ? EmmyHttp::Configuration.new(config) : config
       options = {
-        environment: config.environment,
-        address:   config.url.host,
-        port:      config.url.port,
-        pid:       config.pid,
-        log:       config.log || File.join(Dir.pwd, "log/#{config.backend}.log")
+        environment:    config.environment,
+        address:        config.url.host,
+        port:           config.url.port,
+        pid:            config.pid,
+        user:           config.user,
+        group:          config.group,
+        log:            config.log || File.join(Dir.pwd, "log/#{config.backend}.log")
       }
+
+      if config.ssl
+        options.merge(
+          ssl_key_file:       config.ssl_key_file,
+          ssl_cert_file:      config.ssl_cert_file,
+          ssl_disable_verify: !config.verify_peer,
+          ssl_version:        config.ssl_version
+        )
+      end
+
       super(option_defaults.merge(options.merge(opts)))
       setup
     end
@@ -47,7 +59,8 @@ module EmmyExtends
         server.ssl_options = {
           private_key_file: @options[:ssl_key_file],
           cert_chain_file: @options[:ssl_cert_file],
-          verify_peer: !@options[:ssl_disable_verify]
+          verify_peer: !@options[:ssl_disable_verify],
+          ssl_version: @options[:ssl_disable_verify]
         }
       end
 
