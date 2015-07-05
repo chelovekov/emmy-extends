@@ -11,15 +11,64 @@ module EmmyExtends
     attr_reader :operation
     attr_reader :response
     attr_reader :url
+    attr_reader :headers
+    attr_reader :body
 
     # required for adapter
 
     def delegate=(operation)
       @operation = operation
-      @url = operation.request.real_url
+      prepare_url
+      @headers = operation.request.headers.clone
+      prepare_body
       setup_http_request
       setup_http_client
     end
+
+    def prepare_url
+      @url = operation.request.real_url
+      raise 'relative url' if url.relative?
+
+      @url.normalize!
+
+      if path = operation.request.real_path
+        raise 'path is not relative' unless path.relative?
+        @url += path
+      end
+      @url.user     = operation.request.user if operation.request.user
+      @url.password = operation.request.password if operation.request.password
+      @url.query = operation.request.query.is_a?(Hash) ? Encoders.query(operation.request.query) : operation.request.query.to_s if operation.request.query
+    end
+
+    def prepare_body
+      raise "attribute `file` unsupported" if operation.request.file
+      body, form, json, file = operation.request.body, operation.request.form, operation.request.json
+
+      @body = if body
+        raise "body cannot be hash" if body.is_a?(Hash)
+        body_text = body.is_a?(Array) ? body.join : body.to_s
+        headers['Content-Length'] = body_text.bytesize
+        body_text
+
+      elsif form
+        form_encoded = form.is_a?(String) ? form : Encoders.www_form(form)
+        body_text = Encoders.rfc3986(form_encoded)
+        headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        headers['Content-Length'] = body_text.bytesize
+        body_text
+
+      elsif json
+        json_string = json.is_a?(String) ? json : (json.respond_to?(:to_json) ? json.to_json : JSON.dump(json))
+        headers['Content-Type']   = 'application/json'
+        headers['Content-Length'] = json_string.size
+        json_string
+
+      else
+        headers['Content-Length'] = 0 if %w('POST PUT').include? operation.request.type
+        '' # empty body
+      end
+    end
+
 
     def to_a
       ["tcp://#{url.host}:#{url.port || url.default_port}", EmmyMachine::Connection, method(:initialize_connection), self]
@@ -76,8 +125,8 @@ module EmmyExtends
         keepalive: false,
         path: url.path,
         query: url.query,
-        body: encode_body(operation.request.body),
-        head: operation.request.headers
+        body: encode_body(body),
+        head: headers
       }
     end
 

@@ -16,7 +16,7 @@ module EmmyExtends
 
     # Stops the server
     def disconnect
-      puts "disconnect"
+      #puts "disconnect"
       #EventMachine.stop_server(@signature)
     end
 

@@ -35,4 +35,38 @@ describe EmmyExtends::EmHttpRequest do
     expect(response.headers["Server"]).to eq("nginx")
     expect(response.body.empty?).to be false
   end
+
+  it "should send http get with params to httpbin.org" do
+    request = EmmyHttp::Request.new(
+      type: 'get',
+      url: 'http://httpbin.org',
+      path: '/bytes{/bytes}',
+      params: {
+        bytes: 1024
+      }
+    )
+    operation = EmmyHttp::Operation.new(request, EmmyExtends::EmHttpRequest::Adapter.new)
+    response = operation.sync
+
+    expect(response.status).to be 200
+    expect(response.headers).to include("Content-Type")
+    expect(response.headers["Server"]).to eq("nginx")
+    expect(response.body.empty?).to be false
+  end
+
+  it "should send http get with params to httpbin.org" do
+    request = EmmyHttp::Request.new(
+      type: 'POST',
+      url: 'http://httpbin.org',
+      path: '/post',
+      json: {points: [{x:5, y:6}, {x:3, y:2}]}
+
+    )
+    operation = EmmyHttp::Operation.new(request, EmmyExtends::EmHttpRequest::Adapter.new)
+    response = operation.sync
+
+    expect(response.status).to be 200
+    expect(response.content_type).to eq("application/json")
+    expect(response.content["json"]).to include('points' => [{'x' => 5, 'y' => 6}, {'x' => 3, 'y' => 2}])
+  end
 end
