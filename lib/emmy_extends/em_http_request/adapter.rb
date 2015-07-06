@@ -37,7 +37,9 @@ module EmmyExtends
       end
       @url.user     = operation.request.user if operation.request.user
       @url.password = operation.request.password if operation.request.password
-      @url.query = operation.request.query.is_a?(Hash) ? Encoders.query(operation.request.query) : operation.request.query.to_s if operation.request.query
+      if operation.request.query
+        @url.query = operation.request.query.is_a?(Hash) ? operation.request.query.map { |k, v| param(k, v) }.join('&') : operation.request.query.to_s
+      end
     end
 
     def prepare_body
@@ -47,12 +49,12 @@ module EmmyExtends
       @body = if body
         raise "body cannot be hash" if body.is_a?(Hash)
         body_text = body.is_a?(Array) ? body.join : body.to_s
-        headers['Content-Length'] = body_text.bytesize
         body_text
 
       elsif form
-        form_encoded = form.is_a?(String) ? form : Encoders.www_form(form)
-        body_text = Encoders.rfc3986(form_encoded)
+        form_encoded = form.is_a?(String) ? form : URI.encode_www_form(form)
+        body_text = form_encoded.gsub(/([!'()*]+)/m) { '%'+$1.unpack('H2'*$1.bytesize).join('%').upcase }
+
         headers['Content-Type'] = 'application/x-www-form-urlencoded'
         headers['Content-Length'] = body_text.bytesize
         body_text
