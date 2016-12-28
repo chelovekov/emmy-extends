@@ -53,6 +53,7 @@ module EmmyExtends
 
       elsif form
         form_encoded = form.is_a?(String) ? form : URI.encode_www_form(form)
+        # rfc3986
         body_text = form_encoded.gsub(/([!'()*]+)/m) { '%'+$1.unpack('H2'*$1.bytesize).join('%').upcase }
 
         headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -124,7 +125,7 @@ module EmmyExtends
     def request_options
       {
         redirects: 5,
-        keepalive: false,
+        keepalive: operation.request.keep_alive,
         path: url.path,
         query: url.query,
         body: encode_body(body),
@@ -177,6 +178,7 @@ module EmmyExtends
     end
 
     def setup_http_request
+      # return EventMachine::HttpConnection
       @http_request = EventMachine::HttpRequest.new(url, connection_options)
     end
 
