@@ -38,7 +38,11 @@ module EmmyExtends
       @url.user     = operation.request.user if operation.request.user
       @url.password = operation.request.password if operation.request.password
       if operation.request.query
-        @url.query = operation.request.query.is_a?(Hash) ? operation.request.query.map { |k, v| param(k, v) }.join('&') : operation.request.query.to_s
+        if operation.request.query.is_a?(Hash)
+          @url.query_values = operation.request.query
+        else
+          @url.query = operation.request.query.to_s
+        end
       end
     end
 
