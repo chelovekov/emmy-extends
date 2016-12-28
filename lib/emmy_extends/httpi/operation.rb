@@ -29,7 +29,7 @@ module EmmyExtends
 
         on :error do |error, operation, conn|
           # FIXME: TimeoutError separate
-          fiber.leave ConnectionError, error.to_s
+          fiber.leave EmmyHttp::ConnectionError, error.to_s
         end
       end
     end
