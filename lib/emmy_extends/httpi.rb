@@ -6,6 +6,13 @@ class HTTPI::Auth::SSL
   attr_writer :ssl_version
 end
 
+#DISABLE GZIP
+class HTTPI::Response
+  def gzipped_response?
+    false
+  end
+end
+
 module EmmyExtends
   module HTTPI
     require "emmy_extends/httpi/adapter"
