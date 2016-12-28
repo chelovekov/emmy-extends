@@ -31,7 +31,8 @@ module EmmyExtends
       if @request.ssl?
         ssl = {
           cert_chain_file: @request.auth.ssl.ca_cert_file,
-          verify_peer: @request.auth.ssl.verify_mode
+          verify_peer: @request.auth.ssl.verify_mode,
+          ssl_version: @request.auth.ssl.ssl_version
         }
       end
 
